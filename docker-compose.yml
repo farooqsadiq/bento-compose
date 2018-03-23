@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  solr:
+    image: solr:6.6.3-alpine
+    ports:
+      - "$SOLR_PORT:8983"
+    volumes:
+      - "./data/solr/catalyst:/opt/solr/server/solr/mycores/catalyst"
+      - "./data/solr/web.xml:/opt/solr/server/solr-webapp/webapp/WEB-INF/web.xml"
+    environment:
+      - "SOLR_HEAP=${SOLR_HEAP}"
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - catalyst
+  db:
+    image: mysql:5.7
+    volumes:
+      - "./data/mysql:/var/lib/mysql"
+    restart: always
+    ports:
+      - "${MYSQL_PORT}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${LARA_DATABASE_DATABASE}"
+      MYSQL_USER: "${LARA_DATABASE_USERNAME}"
+      MYSQL_PASSWORD: "${LARA_DATABASE_PASSWORD}"
+  lara:
+    build: ./lara/
+    depends_on:
+      - db
+    ports:
+      - "${LARA_PORT}:3000"
+    working_dir: /opt/app
+    volumes:
+      - "./lara:/opt/app/lara"
+    environment:
+      LARA_DATABASE_HOST     : "${LARA_DATABASE_HOST}"
+      LARA_DATABASE_DATABASE : "${LARA_DATABASE_DATABASE}"
+      LARA_DATABASE_USERNAME : "${LARA_DATABASE_USERNAME}"
+      LARA_DATABASE_PASSWORD : "${LARA_DATABASE_PASSWORD}"
+      EDS_USERNAME : "${EDS_USERNAME}"
+      EDS_PASSWORD : "${EDS_PASSWORD}"
+      EDS_PROFILE  : "${EDS_PROFILE}"
+      SCOPUS_API_KEY  : "${SCOPUS_API_KEY}"
+      ASPACE_USERNAME : "${ASPACE_USERNAME}"
+      ASPACE_PASSWORD : "${ASPACE_PASSWORD}"
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+
