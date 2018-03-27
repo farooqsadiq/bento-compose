@@ -3,4 +3,4 @@
 	url = https://github.com/jhu-sheridan-libraries/lara.git
 [submodule "jhu_bento"]
 	path = jhu_bento
-	url = https://github.com/jiaola/jhu_bento.git
+	url = https://github.com/jhu-sheridan-libraries/jhu_bento.git
